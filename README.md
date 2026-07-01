@@ -165,6 +165,28 @@ Next.js (App Router) + TypeScript · Tailwind CSS · Prisma + SQLite · node‑c
 - `npm run setup` — generate Prisma client + create/upgrade the database
 - `npm run smoke` — hit live providers and print what the auto‑picker would choose (dev tool)
 
+## Troubleshooting
+
+### `Environment variable not found: DATABASE_URL`
+
+The app needs a `.env` file in the project folder.
+
+**PowerShell (in `C:\Users\...\Seerr2`):**
+```powershell
+Copy-Item .env.example .env
+npm run setup
+npm start
+```
+
+Or create `.env` manually with this single line:
+```
+DATABASE_URL="file:./data/seerr2.db"
+```
+
+Then run `npm run setup` once to create the database, and `npm start` again.
+
+If you already cloned the repo, pull the latest version — it includes a fallback if `.env` is missing.
+
 ## Notes & limitations
 
 - Public torrent sources only in v1 (no private trackers). qBittorrent can still seed anything you add manually.
