@@ -1,0 +1,107 @@
+// Prisma schema for Seerr2 — unified media automation app.
+// SQLite keeps it zero-config and fully self-contained.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Single-row application configuration (id is always 1).
+model Setting {
+  id                 Int      @id @default(1)
+  tmdbApiKey         String   @default("")
+  qbtHost            String   @default("localhost")
+  qbtPort            Int      @default(8080)
+  qbtUsername        String   @default("")
+  qbtPassword        String   @default("")
+  qbtCategory        String   @default("seerr2")
+  downloadDir        String   @default("")
+  movieLibraryDir    String   @default("")
+  tvLibraryDir       String   @default("")
+  useHardlinks       Boolean  @default(true)
+  minSeeders         Int      @default(5)
+  qualityTarget      String   @default("efficient1080") // efficient1080 | balanced | max4k
+  allowedTiers       String   @default("1080p,720p")
+  idealMovieSize1080 Float    @default(3)
+  idealMovieSize720  Float    @default(1.5)
+  idealMovieSize2160 Float    @default(20)
+  idealEpisodeSize   Float    @default(1.2)
+  sizeWeight         Float    @default(0.55)
+  healthWeight       Float    @default(0.45)
+  hevcBonus          Float    @default(0.15)
+  monitorIntervalMin Int      @default(30)
+  updatedAt          DateTime @updatedAt
+}
+
+model MediaItem {
+  id            Int        @id @default(autoincrement())
+  tmdbId        Int
+  type          String // 'movie' | 'tv'
+  title         String
+  year          Int?
+  overview      String     @default("")
+  posterPath    String?
+  backdropPath  String?
+  status        String     @default("wanted") // wanted | searching | downloading | partial | available
+  qualityTarget String?
+  monitored     Boolean    @default(true)
+  addedAt       DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  episodes      Episode[]
+  downloads     Download[]
+
+  @@unique([tmdbId, type])
+}
+
+model Episode {
+  id          Int        @id @default(autoincrement())
+  mediaItem   MediaItem  @relation(fields: [mediaItemId], references: [id], onDelete: Cascade)
+  mediaItemId Int
+  season      Int
+  number      Int
+  title       String     @default("")
+  airDate     DateTime?
+  monitored   Boolean    @default(true)
+  state       String     @default("missing") // missing | searching | downloading | available
+  downloads   Download[]
+
+  @@unique([mediaItemId, season, number])
+}
+
+model Download {
+  id           Int       @id @default(autoincrement())
+  mediaItem    MediaItem @relation(fields: [mediaItemId], references: [id], onDelete: Cascade)
+  mediaItemId  Int
+  episode      Episode?  @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  episodeId    Int?
+  hash         String    @default("")
+  releaseTitle String
+  magnet       String    @default("")
+  sizeGB       Float     @default(0)
+  seeders      Int       @default(0)
+  quality      String    @default("")
+  progress     Float     @default(0)
+  state        String    @default("queued") // queued | downloading | importing | done | failed
+  error        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Blacklist {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // release hash or normalized title
+  reason    String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  level     String   @default("info") // info | success | warn | error
+  message   String
+  createdAt DateTime @default(now())
+}

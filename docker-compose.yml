@@ -1,0 +1,24 @@
+services:
+  seerr2:
+    build: .
+    container_name: seerr2
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/prisma/data/seerr2.db
+      # Set your timezone so the calendar/air dates line up.
+      - TZ=America/Los_Angeles
+    volumes:
+      # Persist the app database.
+      - ./data:/app/prisma/data
+      # IMPORTANT: these paths must match what you enter in Settings, AND must
+      # match how qBittorrent sees its download folder (so imports can find files).
+      # Map your real host folders on the left side.
+      - /path/to/downloads:/downloads
+      - /path/to/media/Movies:/media/Movies
+      - /path/to/media/TV:/media/TV
+    # Lets the container reach qBittorrent running on the host machine.
+    # In Settings, set qBittorrent Host to: host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
