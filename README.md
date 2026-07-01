@@ -51,6 +51,11 @@ If PowerShell says `git is not recognized` or `npm is not recognized`, install t
    git clone https://github.com/swstrau118/Seerr2.git
    cd Seerr2
    Copy-Item .env.example .env
+   ```
+   If that says **file not found**, create `.env` manually (see [Troubleshooting](#troubleshooting) below).
+
+   Then continue:
+   ```powershell
    npm install
    npm run setup
    npm run build
