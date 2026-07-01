@@ -28,7 +28,42 @@ Example: given a 1.7 GB and a 10 GB 1080p release with similar seeders, it picks
 
 - **qBittorrent** installed on the same computer (it does the actual downloading).
 - A **TMDB API key** (free) for browsing/metadata.
-- Either **Node.js 22+** (host install, recommended) or **Docker**.
+- **Node.js 22+** and **Git** (for host install), or **Docker**.
+
+### Windows server (Plex + qBittorrent)
+
+If PowerShell says `git is not recognized` or `npm is not recognized`, install these first:
+
+1. **Git for Windows** — [git-scm.com/download/win](https://git-scm.com/download/win)  
+   Use the defaults. **Close and reopen PowerShell** after install so `git` is on your PATH.
+
+2. **Node.js LTS (22+)** — [nodejs.org](https://nodejs.org)  
+   Close and reopen PowerShell after install, then verify:
+   ```powershell
+   node --version
+   npm --version
+   git --version
+   ```
+
+3. **Clone and run** (PowerShell):
+   ```powershell
+   cd $HOME
+   git clone https://github.com/swstrau118/Seerr2.git
+   cd Seerr2
+   Copy-Item .env.example .env
+   npm install
+   npm run setup
+   npm run build
+   npm start
+   ```
+   Open **http://localhost:3000** on that PC.
+
+4. **Settings → Folders** — use Windows paths qBittorrent and Plex already use, e.g.:
+   - Download folder: `D:\Downloads`
+   - Movie library: `D:\Media\Movies`
+   - TV library: `D:\Media\TV`
+
+**No Git?** Download the repo as a ZIP from [github.com/swstrau118/Seerr2](https://github.com/swstrau118/Seerr2) → **Code → Download ZIP**, extract it, then run the `npm` commands inside the folder (you still need Node.js).
 
 ---
 
